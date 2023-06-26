@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.board.model.dao.TefBoardDao">
+	<resultMap type="TefBoard" id="tefBoardMap">
+		<result column="tef_id" property="tefBoardId" />
+		<result column="tef_img" property="tefBoardImg" />
+		<result column="tef_title" property="tefBoardTitle" />
+		<result column="tef_content" property="tefBoardContent" />
+		<result column="tef_writer" property="tefBoardWriter" />
+		<result column="tef_created_at" property="tefBoardCreatedAt" />
+		<result column="tef_updated_at" property="tefBoardUpdatedAt" />
+		<result column="tef_like" property="tefBoardLike" />
+	</resultMap>
+
+
+	<!-- boardId를 통해 특정 게시물만 가져오기 -->
+	<select id="selectByBoardId" resultMap="tefBoardMap"
+		parameterType="int">
+		SELECT tef_id, tef_img, tef_title, tef_content, tef_writer,
+		date_format(tef_created_at,
+		'%Y-%m-%d %H:%i:%s') as tef_created_at,
+		date_format(tef_updated_at,
+		'%Y-%m-%d %H:%i:%s') as tef_updated_at
+		FROM TEF
+		WHERE tef_id = #{tefBoardId}
+	</select>
+
+	<!-- 게시물 등록 -->
+	<insert id="insertBoard" parameterType="TefBoard" keyProperty="tefBoardId" useGeneratedKeys="true">
+		INSERT INTO TEF (tef_img,
+		tef_title, tef_content, tef_writer)
+		VALUES(#{tefBoardImg},
+		#{tefBoardTitle}, #{tefBoardContent}, #{tefBoardWriter})
+	</insert>
+
+	<!-- 게시물 수정 -->
+	<update id="updateBoard" parameterType="TefBoard">
+		Update TEF
+		Set tef_img =
+		#{tefBoardImg}, tef_title = #{tefBoardTitle}, tef_content =
+		#{tefBoardContent}
+		WHERE tef_id = #{tefBoardId}
+	</update>
+
+	<!-- 게시물 삭제 -->
+	<delete id="deleteBoard" parameterType="int">
+		DELETE FROM TEF
+		WHERE
+		tef_id = #{tefBoardId}
+	</delete>
+
+	<!-- 게시물 정렬 및 검색 -->
+	<select id="searchBoard" resultMap="tefBoardMap"
+		parameterType="SearchCondition">
+		SELECT tef_img, tef_id, tef_title, tef_content, tef_writer, 
+		date_format(tef_created_at,
+		'%Y-%m-%d %H:%i:%s') as tef_created_at,
+		date_format(tef_updated_at,
+		'%Y-%m-%d %H:%i:%s') as tef_updated_at, tef_like
+		FROM TEF
+		<!-- 어떤 기준을 가지고 검색을 할거냐!!! -->
+		<if test="key != 'none'">
+			WHERE ${key} LIKE concat('%', #{value},
+			'%')
+		</if>
+		<!-- 어떤 기준으로 어떤 방향으로 정렬할래? -->
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+
+	<!-- 좋아요 추가 -->
+	<update id="plusLike" parameterType="int">
+		UPDATE TEF
+		SET tef_like =
+		tef_like + 1
+		WHERE tef_id = #{tefBoardId}
+	</update>
+
+	<!-- 좋아요 취소 -->
+	<update id="minusLike" parameterType="int">
+		UPDATE TEF
+		SET tef_like =
+		tef_like - 1
+		WHERE tef_id = #{tefBoardId}
+	</update>
+
+</mapper>

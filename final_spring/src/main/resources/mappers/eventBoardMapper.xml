@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.board.model.dao.EventBoardDao">
+	<resultMap type="EventBoard" id="eventBoardMap">
+		<result column="event_id" property="eventBoardId" />
+		<result column="event_title" property="eventBoardTitle" />
+		<result column="event_content" property="eventBoardContent" />
+		<result column="event_writer" property="eventBoardWriter" />
+		<result column="event_created_at" property="eventBoardCreatedAt" />
+		<result column="event_updated_at" property="eventBoardUpdatedAt" />
+	</resultMap>
+
+	
+	<!-- boardId를 통해 특정 게시물만 가져오기 -->
+	<select id="selectByBoardId" resultMap="eventBoardMap" parameterType="int">
+		SELECT event_id, event_title, event_content, event_writer,
+		date_format(event_created_at,
+		'%Y-%m-%d %H:%i:%s') as event_created_at, date_format(event_updated_at,
+		'%Y-%m-%d %H:%i:%s') as event_updated_at
+		FROM event
+		WHERE event_id = #{boardId}
+	</select>
+	
+	<!-- 게시물 정렬 및 검색 -->
+	<select id="searchBoard" resultMap="eventBoardMap"
+		parameterType="SearchCondition">
+		SELECT event_id, event_title, event_content, event_writer,
+		date_format(event_created_at,
+		'%Y-%m-%d %H:%i:%s') as event_created_at, date_format(event_updated_at,
+		'%Y-%m-%d %H:%i:%s') as event_updated_at
+		FROM event
+		<!-- 어떤 기준을 가지고 검색을 할거냐!!! -->
+		<if test="key != 'none'">
+			WHERE ${key} LIKE concat('%', #{value},
+			'%')
+		</if>
+		<!-- 어떤 기준으로 어떤 방향으로 정렬할래? -->
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+</mapper>

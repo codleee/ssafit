@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.board.model.dao.FreeLikeDao">
+	<resultMap type="FreeLike" id="freeLikeMap">
+		<result column="free_like_id" property="freeLikeId" />
+		<result column="free_board_id" property="freeBoardId" />
+		<result column="user_nickname" property="userNickname" />
+	</resultMap>
+	
+	<!-- 좋아요 정보를 입력 -->
+	<insert id="addFreeLike" parameterType="FreeLike">
+		INSERT INTO freeLike(free_board_id, user_nickname)
+		VALUES(#{freeBoardId}, #{userNickname})
+	</insert>
+	
+	<!-- 좋아요 정보를 삭제 -->
+	<delete id="deleteFreeLike" parameterType="FreeLike">
+		DELETE FROM freeLike
+		WHERE free_board_id = #{freeBoardId} AND user_nickname = #{userNickname}
+	</delete>
+	
+	<!-- 좋아요 관련 객체가 입력되면 해당 게시물의 아이디와 유저 닉네임을 가진 객체를 반환하자 -->
+	<select id="selectFreeLike" resultMap="freeLikeMap" parameterType="FreeLike">
+		SELECT free_like_id, free_board_id, user_nickname
+		FROM freeLike
+		WHERE free_board_id = #{freeBoardId} AND user_nickname = #{userNickname}
+	</select>
+	
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.board.model.dao.UserDao">
+	<resultMap type="User" id="userMap">
+		<result column="user_seq" property="userSeq" />
+		<result column="user_id" property="userId" />
+		<result column="user_pwd" property="userPwd" />
+		<result column="user_name" property="userName" />
+		<result column="user_nickname" property="userNickname" />
+		<result column="user_email" property="userEmail" />
+		<result column="user_point" property="userPoint" />
+	</resultMap>
+
+
+	<insert id="insertUser" parameterType="User">
+		INSERT INTO ssafit.user
+		(user_id, user_pwd, user_name, user_nickname, user_email)
+		VALUES
+		(#{userId}, #{userPwd}, #{userName},
+		#{userNickname}, #{userEmail})
+	</insert>
+
+
+	<select id="selectByUserId" parameterType="String"
+		resultMap="userMap">
+		SELECT *
+		FROM ssafit.user
+		WHERE user_id = #{userId};
+	</select>
+
+
+	<select id="selectByUserNickname" parameterType="String"
+		resultMap="userMap">
+		SELECT *
+		FROM ssafit.user
+		WHERE user_nickname =
+		#{userNickname};
+	</select>
+
+
+	<select id="selectByUserEmail" parameterType="String"
+		resultMap="userMap">
+		SELECT *
+		FROM ssafit.user
+		WHERE user_email = #{userEmail};
+	</select>
+
+
+	<select id="selectAllUsers" resultMap="userMap">
+		SELECT *
+		FROM ssafit.user
+	</select>
+
+	<!-- 좋아요 추가에 따른 유저포인트 증가 -->
+	<update id="plusPoint" parameterType="String">
+		UPDATE user
+		SET user_point =
+		user_point + 100
+		WHERE user_nickname = #{userNickname}
+	</update>
+
+	<!-- 좋아요 취소에 따른 유저포인트 감소 -->
+	<update id="minusPoint" parameterType="String">
+		UPDATE user
+		SET user_point =
+		user_point - 100
+		WHERE user_nickname = #{userNickname}
+	</update>
+</mapper>

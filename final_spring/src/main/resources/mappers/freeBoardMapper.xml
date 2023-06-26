@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.board.model.dao.FreeBoardDao">
+	<resultMap type="FreeBoard" id="freeBoardMap">
+		<result column="free_id" property="freeBoardId" />
+		<result column="free_title" property="freeBoardTitle" />
+		<result column="free_content" property="freeBoardContent" />
+		<result column="free_writer" property="freeBoardWriter" />
+		<result column="free_created_at" property="freeBoardCreatedAt" />
+		<result column="free_updated_at" property="freeBoardUpdatedAt" />
+		<result column="free_like" property="freeBoardLike" />
+	</resultMap>
+
+
+	<!-- boardId를 통해 특정 게시물만 가져오기 -->
+	<select id="selectByBoardId" resultMap="freeBoardMap"
+		parameterType="int">
+		SELECT free_id, free_title, free_content, free_writer,
+		date_format(free_created_at,
+		'%Y-%m-%d %H:%i:%s') as free_created_at,
+		date_format(free_updated_at,
+		'%Y-%m-%d %H:%i:%s') as free_updated_at
+		FROM free
+		WHERE free_id = #{freeBoardId}
+	</select>
+
+	<!-- 게시물 등록 -->
+	<insert id="insertBoard" parameterType="FreeBoard" keyProperty="freeBoardId" useGeneratedKeys="true">
+		INSERT INTO free
+		(free_title, free_content, free_writer)
+		VALUES(#{freeBoardTitle},
+		#{freeBoardContent}, #{freeBoardWriter})
+	</insert>
+
+	<!-- 게시물 수정 -->
+	<update id="updateBoard" parameterType="FreeBoard">
+		Update free
+		Set free_title
+		= #{freeBoardTitle}, free_content = #{freeBoardContent}
+		WHERE free_id =
+		#{freeBoardId}
+	</update>
+
+	<!-- 게시물 삭제 -->
+	<delete id="deleteBoard" parameterType="int">
+		DELETE FROM free
+		WHERE
+		free_id = #{freeBoardId}
+	</delete>
+
+	<!-- 게시물 정렬 및 검색 -->
+	<select id="searchBoard" resultMap="freeBoardMap"
+		parameterType="SearchCondition">
+		SELECT free_id, free_title, free_content, free_writer,
+		date_format(free_created_at,
+		'%Y-%m-%d %H:%i:%s') as free_created_at,
+		date_format(free_updated_at,
+		'%Y-%m-%d %H:%i:%s') as free_updated_at, free_like
+		FROM free
+		<!-- 어떤 기준을 가지고 검색을 할거냐!!! -->
+		<if test="key != 'none'">
+			WHERE ${key} LIKE concat('%', #{value},
+			'%')
+		</if>
+		<!-- 어떤 기준으로 어떤 방향으로 정렬할래? -->
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+
+	<!-- 좋아요 추가 -->
+	<update id="plusLike" parameterType="int">
+		UPDATE free
+		SET free_like =
+		free_like + 1
+		WHERE free_id = #{freeBoardId}
+	</update>
+
+	<!-- 좋아요 취소 -->
+	<update id="minusLike" parameterType="int">
+		UPDATE free
+		SET free_like =
+		free_like - 1
+		WHERE free_id = #{freeBoardId}
+	</update>
+
+</mapper>
